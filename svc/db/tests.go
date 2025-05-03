@@ -91,7 +91,7 @@ func (suite *CandlesticksSuite) TestCreateWithNoTime() {
 }
 
 // TestRead tests the case where the candlesticks are read.
-// TODO: Refactor this function to make it shorter
+// TODO(#14): Refactor this function to make it shorter
 //
 //nolint:funlen
 func (suite *CandlesticksSuite) TestRead() {
@@ -254,7 +254,7 @@ func (suite *CandlesticksSuite) TestRead() {
 }
 
 // TestReadLimit tests the case where the limit is set.
-// TODO: Refactor this function to make it shorter
+// TODO(#15): Refactor this function to make it shorter
 //
 //nolint:funlen
 func (suite *CandlesticksSuite) TestReadLimit() {

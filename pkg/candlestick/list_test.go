@@ -91,7 +91,7 @@ func (suite *CandlestickListSuite) TestNewWithUnalignedCandlestick() {
 }
 
 func (suite *CandlestickListSuite) TestMustSet() {
-	// TODO: Implement MustSet
+	// TODO(#13): Implement MustSet
 }
 
 func (suite *CandlestickListSuite) TestSet() {
