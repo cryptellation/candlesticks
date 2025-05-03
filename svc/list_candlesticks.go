@@ -21,7 +21,7 @@ const (
 )
 
 // ListCandlesticksWorkflow is the workflow that will list candlesticks.
-// TODO: Refactor this function to make it shorter.
+// TODO(#6): Refactor this function to make it shorter.
 //
 //nolint:funlen
 func (wf *workflows) ListCandlesticksWorkflow(
@@ -233,7 +233,7 @@ func timeToReference(t time.Time) *time.Time {
 	return &t
 }
 
-// TODO: Refactor this function to make it shorter.
+// TODO(#7): Refactor this function to make it shorter.
 //
 //nolint:funlen,cyclop
 func (wf workflows) upsert(ctx workflow.Context, cl *candlestick.List) error {
