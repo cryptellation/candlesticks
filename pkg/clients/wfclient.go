@@ -38,7 +38,10 @@ func (wfClient) ListCandlesticks(
 	return result, err
 }
 
-func setDefaultChildWorkflowOptions(ctx workflow.Context, childWorkflowOptions *workflow.ChildWorkflowOptions) workflow.Context {
+func setDefaultChildWorkflowOptions(
+	ctx workflow.Context,
+	childWorkflowOptions *workflow.ChildWorkflowOptions,
+) workflow.Context {
 	// Create default child workflow options
 	if childWorkflowOptions == nil {
 		childWorkflowOptions = &workflow.ChildWorkflowOptions{}
