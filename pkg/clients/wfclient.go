@@ -30,13 +30,27 @@ func (wfClient) ListCandlesticks(
 	params api.ListCandlesticksWorkflowParams,
 	childWorkflowOptions *workflow.ChildWorkflowOptions,
 ) (result api.ListCandlesticksWorkflowResults, err error) {
-	// Set options
-	if childWorkflowOptions == nil {
-		childWorkflowOptions = &workflow.ChildWorkflowOptions{}
-	}
-	ctx = workflow.WithChildOptions(ctx, *childWorkflowOptions)
+	// Set default options
+	ctx = setDefaultChildWorkflowOptions(ctx, childWorkflowOptions)
 
 	// Get candlesticks
 	err = workflow.ExecuteChildWorkflow(ctx, api.ListCandlesticksWorkflowName, params).Get(ctx, &result)
 	return result, err
+}
+
+func setDefaultChildWorkflowOptions(
+	ctx workflow.Context,
+	childWorkflowOptions *workflow.ChildWorkflowOptions,
+) workflow.Context {
+	// Create default child workflow options
+	if childWorkflowOptions == nil {
+		childWorkflowOptions = &workflow.ChildWorkflowOptions{}
+	}
+
+	// Set default options
+	if childWorkflowOptions.TaskQueue == "" {
+		childWorkflowOptions.TaskQueue = api.WorkerTaskQueueName
+	}
+
+	return workflow.WithChildOptions(ctx, *childWorkflowOptions)
 }
