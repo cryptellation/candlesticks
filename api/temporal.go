@@ -30,7 +30,7 @@ type (
 
 	// ListCandlesticksWorkflowResults is the result of the ListCandlesticks workflow.
 	ListCandlesticksWorkflowResults struct {
-		List *candlestick.List
+		List []candlestick.Candlestick
 	}
 )
 

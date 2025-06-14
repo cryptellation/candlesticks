@@ -79,7 +79,7 @@ func (wf *workflows) ListCandlesticksWorkflow(
 		logger.Debug("No candlestick missing, returning the candlesticks list.",
 			"size", dbRes.List.Data.Len())
 		return api.ListCandlesticksWorkflowResults{
-			List: dbRes.List,
+			List: dbRes.List.ToArray(),
 		}, nil
 	}
 	logger.Debug("Candlesticks are missing from DB",
@@ -103,7 +103,7 @@ func (wf *workflows) ListCandlesticksWorkflow(
 		"from", *params.Start,
 		"to", *params.End)
 
-	return api.ListCandlesticksWorkflowResults{List: rl}, nil
+	return api.ListCandlesticksWorkflowResults{List: rl.ToArray()}, nil
 }
 
 // getDownloadStartEndTimes gives start and end time for download.

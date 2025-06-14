@@ -34,8 +34,8 @@ func (suite *EndToEndSuite) TestReadCandlesticks() {
 
 	t1, _ := time.Parse(time.RFC3339, "2022-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2022-01-01T01:00:00Z")
-	suite.Require().Equal(2, res.List.Data.Len())
-	_ = res.List.Loop(func(cs candlestick.Candlestick) (bool, error) {
+	suite.Require().Equal(2, len(res.List))
+	for _, cs := range res.List {
 		switch {
 		case cs.Time.Equal(t1):
 			suite.Require().True(cs.Equal(candlestick.Candlestick{
@@ -58,6 +58,5 @@ func (suite *EndToEndSuite) TestReadCandlesticks() {
 		default:
 			suite.FailNow(cs.String()+"should not be there", cs.Time)
 		}
-		return false, nil
-	})
+	}
 }
