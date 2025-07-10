@@ -62,10 +62,14 @@ func serve(cmd *cobra.Command, _ []string) error {
 	db.Register(w)
 
 	// Create exchange adapter aggregator and register activities
-	exchs := aggregator.New(binance.New(
+	binanceActivities, err := binance.New(
 		viper.GetString(configs.EnvBinanceAPIKey),
 		viper.GetString(configs.EnvBinanceSecretKey),
-	))
+	)
+	if err != nil {
+		return err
+	}
+	exchs := aggregator.New(binanceActivities)
 	exchs.Register(w)
 
 	// Create service core and register workflows

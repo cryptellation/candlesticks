@@ -2,6 +2,7 @@ package binance
 
 import (
 	"context"
+	"errors"
 	"io"
 	"time"
 
@@ -17,14 +18,22 @@ type Activities struct {
 }
 
 // New creates a new Binance activities struct.
-func New(apiKey, secretKey string) *Activities {
+func New(apiKey, secretKey string) (*Activities, error) {
+	// Validate that API key and secret key are not empty
+	if apiKey == "" {
+		return nil, entities.WrapError(errors.New("API key cannot be empty"))
+	}
+	if secretKey == "" {
+		return nil, entities.WrapError(errors.New("secret key cannot be empty"))
+	}
+
 	c := client.NewClient(apiKey, secretKey)
 	c.Logger.SetOutput(io.Discard)
 
 	// Return service
 	return &Activities{
 		Client: c,
-	}
+	}, nil
 }
 
 // Name returns the name of the Binance activities.
