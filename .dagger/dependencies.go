@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
-
 	"github.com/cryptellation/candlesticks/dagger/internal/dagger"
 )
 
 // PostgresContainer returns a service running Postgres initialized for integration tests.
-func PostgresContainer(ctx context.Context, dag *dagger.Client, sourceDir *dagger.Directory) *dagger.Service {
+func PostgresContainer(dag *dagger.Client, sourceDir *dagger.Directory) *dagger.Service {
 	// Read the SQL init file from the repo
 	initSQL := sourceDir.File("deployments/docker-compose/postgresql/cryptellation.sql")
 

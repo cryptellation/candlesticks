@@ -88,9 +88,9 @@ func (mod *Candlesticks) UnitTests(sourceDir *dagger.Directory) *dagger.Containe
 		})
 }
 
-// integrationDBTests runs the integration tests for the database against a fresh Postgres container.
-func (mod *Candlesticks) integrationDBTests(ctx context.Context, sourceDir *dagger.Directory) *dagger.Container {
-	pg := PostgresContainer(ctx, dag, sourceDir)
+// dbIntegrationTests runs the integration tests for the database against a fresh Postgres container.
+func (mod *Candlesticks) dbIntegrationTests(sourceDir *dagger.Directory) *dagger.Container {
+	pg := PostgresContainer(dag, sourceDir)
 	dsn := "host=postgres user=cryptellation password=cryptellation dbname=candlesticks sslmode=disable"
 	c := dag.Container().
 		From("golang:"+goVersion()+"-alpine").
@@ -100,10 +100,30 @@ func (mod *Candlesticks) integrationDBTests(ctx context.Context, sourceDir *dagg
 	return c.WithExec([]string{"go", "test", "-tags=integration", "./svc/db/..."})
 }
 
+// binanceIntegrationTests runs the Binance exchange integration tests with secrets from env.
+func (mod *Candlesticks) binanceIntegrationTests(
+	sourceDir *dagger.Directory,
+	binanceApiKey *dagger.Secret,
+	binanceSecretKey *dagger.Secret,
+) *dagger.Container {
+	c := dag.Container().From("golang:" + goVersion() + "-alpine")
+	c = mod.withGoCodeAndCacheAsWorkDirectory(c, sourceDir).
+		WithSecretVariable("BINANCE_API_KEY", binanceApiKey).
+		WithSecretVariable("BINANCE_SECRET_KEY", binanceSecretKey).
+		WithExec([]string{"sh", "-c", "go test -v -tags=integration ./svc/exchanges/binance/... | grep -v 'no test files'"})
+	return c
+}
+
 // IntegrationTests returns all integration test containers for this service.
-func (mod *Candlesticks) IntegrationTests(ctx context.Context, sourceDir *dagger.Directory) []*dagger.Container {
+func (mod *Candlesticks) IntegrationTests(
+	ctx context.Context,
+	sourceDir *dagger.Directory,
+	binanceApiKey *dagger.Secret,
+	binanceSecretKey *dagger.Secret,
+) []*dagger.Container {
 	return []*dagger.Container{
-		mod.integrationDBTests(ctx, sourceDir),
+		mod.dbIntegrationTests(sourceDir),
+		mod.binanceIntegrationTests(sourceDir, binanceApiKey, binanceSecretKey),
 	}
 }
 
