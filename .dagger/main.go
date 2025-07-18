@@ -90,7 +90,7 @@ func (mod *Candlesticks) UnitTests(sourceDir *dagger.Directory) *dagger.Containe
 
 // dbIntegrationTests runs the integration tests for the database against a fresh Postgres container.
 func (mod *Candlesticks) dbIntegrationTests(sourceDir *dagger.Directory) *dagger.Container {
-	pg := PostgresContainer(dag, sourceDir)
+	pg := PostgresService(dag, sourceDir)
 	dsn := "host=postgres user=cryptellation password=cryptellation dbname=candlesticks sslmode=disable"
 	c := dag.Container().
 		From("golang:"+goVersion()+"-alpine").
@@ -116,7 +116,6 @@ func (mod *Candlesticks) binanceIntegrationTests(
 
 // IntegrationTests returns all integration test containers for this service.
 func (mod *Candlesticks) IntegrationTests(
-	ctx context.Context,
 	sourceDir *dagger.Directory,
 	binanceApiKey *dagger.Secret,
 	binanceSecretKey *dagger.Secret,
@@ -125,6 +124,30 @@ func (mod *Candlesticks) IntegrationTests(
 		mod.dbIntegrationTests(sourceDir),
 		mod.binanceIntegrationTests(sourceDir, binanceApiKey, binanceSecretKey),
 	}
+}
+
+// EndToEndTests runs the end-to-end tests with all required services (DB, Temporal, Candlesticks) and env variables.
+func (mod *Candlesticks) EndToEndTests(
+	sourceDir *dagger.Directory,
+	binanceApiKey *dagger.Secret,
+	binanceSecretKey *dagger.Secret,
+) *dagger.Container {
+	// Start shared Postgres service
+	db := PostgresService(dag, sourceDir)
+
+	// Start Temporal service (uses shared Postgres)
+	temporal := TemporalService(dag, sourceDir, db)
+
+	// Start Candlesticks service and bind it to the test container (uses shared Postgres)
+	candlesticks := Runner(dag, sourceDir, temporal, binanceApiKey, binanceSecretKey, db)
+
+	c := dag.Container().From("golang:" + goVersion() + "-alpine")
+	c = mod.withGoCodeAndCacheAsWorkDirectory(c, sourceDir).
+		WithServiceBinding("temporal", temporal).
+		WithServiceBinding("candlesticks", candlesticks).
+		WithEnvVariable("TEMPORAL_ADDRESS", "temporal:7233")
+
+	return c.WithExec([]string{"go", "test", "-v", "-tags=e2e", "./test"})
 }
 
 // Container returns a container with the application built in it.
