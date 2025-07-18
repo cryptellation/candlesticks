@@ -34,12 +34,13 @@ func AvailablePlatforms() []string {
 	return slices.Collect(maps.Keys(GoRunnersInfo))
 }
 
-// Runner returns a container running the candlesticks service built from the official Dockerfile, with its own Postgres and a given Temporal service.
+// Runner returns a container running the candlesticks service built from the official Dockerfile,
+// with its own Postgres and a given Temporal service.
 func Runner(
-	dag *dagger.Client,
+	_ *dagger.Client,
 	sourceDir *dagger.Directory,
 	temporal *dagger.Service,
-	binanceApiKey *dagger.Secret,
+	binanceAPIKey *dagger.Secret,
 	binanceSecretKey *dagger.Secret,
 	db *dagger.Service,
 ) *dagger.Service {
@@ -72,14 +73,15 @@ func Runner(
 
 	// Bind the Postgres service to the container
 	container = container.WithServiceBinding("postgres", db)
-	container = container.WithEnvVariable("SQL_DSN", "host=postgres user=cryptellation password=cryptellation dbname=candlesticks sslmode=disable")
+	container = container.WithEnvVariable("SQL_DSN",
+		"host=postgres user=cryptellation password=cryptellation dbname=candlesticks sslmode=disable")
 
 	// Bind the Temporal service to the container
 	container = container.WithServiceBinding("temporal", temporal)
 	container = container.WithEnvVariable("TEMPORAL_ADDRESS", "temporal:7233")
 
 	// Set the Binance API key and secret
-	container = container.WithSecretVariable("BINANCE_API_KEY", binanceApiKey)
+	container = container.WithSecretVariable("BINANCE_API_KEY", binanceAPIKey)
 	container = container.WithSecretVariable("BINANCE_SECRET_KEY", binanceSecretKey)
 
 	// Expose the default port (9000) as in Dockerfile

@@ -25,7 +25,8 @@ func PostgresService(dag *dagger.Client, sourceDir *dagger.Directory) *dagger.Se
 	return c.AsService()
 }
 
-// TemporalService returns a Temporal service configured for Postgres, mounting dynamic config, and waiting for Postgres.
+// TemporalService returns a Temporal service configured for Postgres, mounting dynamic config,
+// and waiting for Postgres.
 func TemporalService(dag *dagger.Client, sourceDir *dagger.Directory, db *dagger.Service) *dagger.Service {
 	// Build the Temporal container with the official temporal image
 	container := dag.Container().From("temporalio/auto-setup:1.25")
